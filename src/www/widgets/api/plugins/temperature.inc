@@ -45,7 +45,6 @@ function temperature_api()
             $tempItem['type_translated'] = $tempItem['type'] == "zone" ? gettext("Zone") : gettext("Core");
             foreach($config['widgets']['thermal_sensors_widget']['thermal_sensors_widget_scale_temperature'] as $device => $factor) {
                 if (str_contains($tempItem['device'], $device)) {
-                    //$tempIntValue = intval($tempItem['temperature']);
                     $tempItem['temperature'] = $tempItem['temperature'] * $factor;
                 }
             }
