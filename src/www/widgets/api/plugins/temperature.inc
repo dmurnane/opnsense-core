@@ -33,6 +33,7 @@ function temperature_api()
 {
     $result = array();
 
+    global $config;
     foreach (explode("\n", configd_run('system temp')) as $sysctl) {
         $parts = explode('=', $sysctl);
         if (count($parts) >= 2) {
@@ -42,6 +43,12 @@ function temperature_api()
             $tempItem['temperature'] = trim(str_replace('C', '', $parts[1]));
             $tempItem['type'] = strpos($tempItem['device'], 'hw.acpi') !== false ? "zone" : "core";
             $tempItem['type_translated'] = $tempItem['type'] == "zone" ? gettext("Zone") : gettext("Core");
+            foreach($config['widgets']['thermal_sensors_widget']['thermal_sensors_widget_scale_temperature'] as $device => $factor) {
+                if (str_contains($tempItem['device'], $device)) {
+                    //$tempIntValue = intval($tempItem['temperature']);
+                    $tempItem['temperature'] = $tempItem['temperature'] * $factor;
+                }
+            }
             $result[] = $tempItem;
         }
     }

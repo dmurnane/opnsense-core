@@ -39,6 +39,31 @@ function fix_temp_value($value, int $default): int
     }
 }
 
+function fix_scale_value($value, array $default): array
+{
+    $scaled = array();
+    foreach(explode(",", $value) as $scale) {
+        if (str_contains($scale, ":")) {
+            $parts = explode(":", $scale);
+            if (is_numeric($parts[1])) { 
+                $scaled[$parts[0]] = $parts[1];
+            } else {
+                $scaled[$parts[0]] = 1;
+            }
+        }
+    }
+    return $scaled;
+}
+
+function scale_to_str(array $value): string
+{
+    $vals = array();
+    foreach($value as $device => $factor) {
+        $vals[] = "$device:$factor";
+    }
+    return join(",", $vals);
+}
+
 function fix_checkbox_value($value): bool
 {
     if ($value !== '') {
@@ -55,6 +80,7 @@ $fields = [
     ['name' => 'thermal_sensors_widget_core_critical_threshold', 'default' => 80, 'processFunc' => 'fix_temp_value'],
     ['name' => 'thermal_sensors_widget_show_one_core_temp', 'default' => false, 'processFunc' => 'fix_checkbox_value'],
     ['name' => 'thermal_sensors_widget_show_temp_in_fahrenheit', 'default' => false, 'processFunc' => 'fix_checkbox_value'],
+    ['name' => 'thermal_sensors_widget_scale_temperature', 'default' => [], 'processFunc' => 'fix_scale_value'],
 ];
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $pconfig = [];
@@ -175,6 +201,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
           <td><?= gettext('Core Critical:') ?></td>
           <td>
             <input type="text" id="thermal_sensors_widget_core_critical_threshold" name="thermal_sensors_widget_core_critical_threshold" value="<?= $pconfig['thermal_sensors_widget_core_critical_threshold']; ?>" />
+          </td>
+        </tr>
+        <tr>
+          <td><?= gettext('Scale Temperature:') ?></td>
+          <td>
+            <input type="text" id="thermal_sensors_widget_scale_temperature" name="thermal_sensors_widget_scale_temperature" value="<?= scale_to_str($pconfig['thermal_sensors_widget_scale_temperature']); ?>" />
           </td>
         </tr>
         <tr>
